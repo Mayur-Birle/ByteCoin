@@ -1,6 +1,6 @@
-
 import datetime
 import hashlib
+import json
 
 
 class Block:
@@ -22,7 +22,6 @@ class Block:
         str(self.nonce).encode('utf-8') +
         str(self.data).encode('utf-8') +
         str(self.previous_hash).encode('utf-8') +
-        str(self.timestamp).encode('utf-8') +
         str(self.blockNo).encode('utf-8')
         )
         return h.hexdigest()
@@ -31,9 +30,10 @@ class Block:
     def jsonformat(self):
     	context = {
     	'Block Hash' : str(self.hash()),
-    	'Block No' : str(self.blockNo()),
-    	'Block Data' : str(self.data()),
-    	'Hashes' : str(self.nonce()),
+    	'Block No' : str(self.blockNo),
+    	'Block Data' : str(self.data),
+    	'Hashes' : str(self.nonce),
+        'timestamp':str(self.timestamp),
     	}
     	return json.dumps(context) 
 
@@ -64,7 +64,6 @@ class Blockchain:
                 break
             else:
                 block.nonce += 1
-
    
 BlockChain = Blockchain()
 

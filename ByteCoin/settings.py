@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Crypt',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ByteCoin.wsgi.application'
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 # Database
