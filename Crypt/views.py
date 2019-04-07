@@ -68,7 +68,7 @@ def msignUp(request):
 
 		profile.account_type=True
 		profile.save()
-		
+
 		
 		return mlogIn(request)
 	return render(request,"Crypt/signup.html",{})
@@ -150,6 +150,16 @@ def logout(request):
     except KeyError:
         return HttpResponse('Error Occur While Logging You Out, Please Try Again')
     return redirect('index')
+
+updateAPI()
+
+def hash_found(request):
+	if request.method == "POST":
+		hh = request.POST['hash']
+		blockNo = request.POST['blockNo']
+		#Block.validate(blockNo,hash)
+		del exchange_q[0];
+
 
 #########################	api_view	#################################    
 

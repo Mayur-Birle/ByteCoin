@@ -18,5 +18,6 @@ urlpatterns = [
     path('api_chain',views.get_block_chain,name="blockChain"),
     path('api_exchange',views.get_current_exchange,name="currentExchange"),
     path('api_latest',views.get_last_block,name="lastBlock"),
+    path('/hash_found',views.hash_found)
 ]
 

@@ -1,3 +1,4 @@
+{%load static%}
 <html>
     <head>
         <link rel = "stylesheet"type="text/css"href="resources/css/style.css">
@@ -10,9 +11,12 @@
 
 <!-- Latest compiled JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-      
+<link href="https://fonts.googleapis.com/css?family=Crimson+Text" rel="stylesheet">
         <style>
-        
+        *{
+            font-family: 'Crimson Text', serif;
+
+        }
             body,html{
                 width: 100%;
                 height: 100%;
@@ -20,6 +24,7 @@
             }
             
             .header{
+                margin-top: -25px;
                 width:100%;
                 height: 100px;
                 background: #3c3c3c;
@@ -27,12 +32,23 @@
 
             }
             .header h1{
-                padding: 20px;
+                padding: 30px 0px 0px 20px;
             }
             .header button{
                 position: relative;
-                top:-70px;
+                top:-40px;
+                right: 10px;
                 float: right;
+                background: red;
+                color:#fff;
+            }
+
+            form{
+                padding: 10px;
+                border-radius: 5px;
+                background: #AA00FF;
+                color: #fff;
+                box-shadow: 0 18px 6px -6px #777;
             }
             
             .content{
@@ -55,7 +71,31 @@
             #chartContainer{
                 margin-right:-80px;
                 float:right;
+                background: #D500F9;
+                border: solid 30px #7E57C2;
+                border-radius: 4px;
+                box-shadow: 0 18px 6px -6px #777;
+
             }
+
+            .badge{
+                margin: 15px;
+                margin-left: 0px; 
+                font-size: 20px;
+                width: auto;
+                height: auto;
+                padding: 15px;
+                background: #4c4c4c;
+                color: #fff;
+                border-radius: 4px;
+            }
+
+            .big{
+                font-size: 30px;
+            }
+
+
+
         </style>
     </head>          
 <body>
@@ -64,36 +104,33 @@
         <h1>Byte Coin</h1>
         <a href="{% url 'logout' %}"><button class="btn btn-full">Log Out</button></a>
     </div>
-    
-    <div class="content">
 
+    <div class="user container-fluid">
+       <div class="badge">Welcome {{user.username}}</div>
+        <div class="badge">Balance : {{profile.balance}} Coin</div>
+    </div>  
     
-        <div class="user">
-            <h3>Welcome {{user.username}}</h3>
-            <b>Balance : {{profile.balance}} Coin</b> 
-            
-          <form action="{% url 'sendcoin' %}" method="POST">
-                {%csrf_token%}
-              <h4> Send Coin </h4>
-                
-            <div class="form-group">
-        <label for="email">To (reciever email):</label>
-        <input type="email" name="email" class="form-control" id="email">
-  </div>      
-  <div class="form-group">
-    <label for="amt">Amount:</label>
-    <input class="form-control" name="amount" id="amt" >
-  </div>              
-  <div class="form-group">
-    <label for="pwd">Transaction Password:</label>
-    <input type="password" name="password" class="form-control" id="pwd">
-  </div>
-  <button type="submit" class="btn btn-default">Send Coins</button>
-</form>
-        </div>    
+    <div class="row container">
 
+        <div class="col-sm-6">
+
+            <div class="big btn btn-primary" id="start"> Start Mining </div> <br/><br/>
+
+            <a href="{% url 'blockChain' %}"><div class="big btn btn-primary"> View Block Chain </div></a> <br/><br/>
+
+            <a href="{% url 'lastBlock' %}"><div class="big btn btn-primary"> View Last Block </div></a><br/><br/>
+
+
+        </div>
+        <div class="col-sm-6">
+            <div class=""> Hashes Compute : <span id="thc"> 0 </span> </div>
+            <div class="">Output Hash : <span id="cg"> - </span> </div>
+        </div>
     </div>
 
+
+<script src="{% static 'Crypt/jquery.js'%}"></script>
+     
 <script type="text/javascript">
     function SHA256(s){
  var chrsz = 8;
@@ -209,11 +246,21 @@
  }
 
  s = Utf8Encode(s);
- return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
-}
+ return binb2hex(core_sha256(str2binb(s), s.length * chrsz))
+};
 </script> 
 
 <script>
+
+$('document').ready(function(){
+
+        function sleep(ms){
+        return new Promise(resolve =>setTimeout(resolve,ms));   
+    }
+
+$('#start').click(function(){
+
+    //fetch the data of block from api
 
 fetch('http://127.0.0.1:8000/api_latest')
     .then(response => response.json())
@@ -235,26 +282,66 @@ fetch('http://127.0.0.1:8000/api_latest')
         datae = dataa['current_data']
         blockNo += 1 
 
-        function mine(){
+        async function mine(){
             for(var i=0; i<= Math.pow(2, 32); i++){
-                if (parseInt(check(),16) <= Math.pow(2,255)){
+                if (parseInt(check(),16) <= Math.pow(2,250)){
                     console.log(check())
+                    $('#cg').html(check());
                     break;
                 }
                 else{
                     nonce += 1 
-                    console.log(nonce)
+                    $('#thc').html(nonce);
+                    await sleep(10)
                 }
             }
         }
         function check(){
-            string = String(nonce)+String('aman --> sh  amount : 1.0')+String(previuos_hash)+String(blockNo)
+            string = String(nonce)+String(datae)+String(previuos_hash)+String(blockNo)
             return SHA256(string)
         }
         mine()
     })
 })
 .catch(error => console.error(error))
+})
+
+})    
+
+// when fetch found send it to validator to validate 
+
+function on_hash_found(hash,blockNo){
+        context = {
+            'blockNo' : blockNo,
+            'hash' : hash
+        }
+
+        $.ajax({
+            type:'post',
+            data:context,
+            url:"/hash_found",
+            processData: false,
+            contentType: false,
+            success:function (result){
+                    
+                }
+        });
+
+    function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        })
+
+}
+
     
 // console.log(SHA256('MayurBirle'))
 
